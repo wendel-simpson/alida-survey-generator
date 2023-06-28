@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import Title from "../Title/Title";
-import SurveyPromptForm from "../SurverPromptForm";
+import SurveyPromptForm from "../SurveyPromptForm";
 
 const classes = {
   container: {
@@ -8,7 +8,8 @@ const classes = {
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: "20px",
+    margin: "20px 40px",
+    width: "100%",
   },
 };
 

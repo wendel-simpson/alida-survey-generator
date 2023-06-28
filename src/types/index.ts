@@ -1,12 +1,11 @@
 export type Config = {
   /**
-   * The openAi prefix prompt
-   */
-  prompt: string;
-  /**
    * Could be a textArea or a fileUpload option
    */
-  inputType: "file" | "text";
+  inputType?: "quickStart" | "textInput";
   textInput?: string;
-  fileInput?: File;
+  companyName?: string;
+  surveyType?: string;
+  numberOfQuestions?: number;
+  industry?: string;
 };
