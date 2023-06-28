@@ -8,6 +8,7 @@ const classes = {
     fontWeight: "600",
     paddingLeft: "10px",
     paddingTop: "2px",
+    paddingBottom: "16px",
   },
 };
 

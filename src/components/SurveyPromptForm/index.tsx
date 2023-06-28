@@ -45,16 +45,19 @@ const classes = {
     textAlign: "left",
   },
   form: {
-    width: "100%",
+    width: "95%",
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "flex-start",
     gap: "10px",
+    border: "2px solid black",
+    borderRadius: "5px",
+    padding: "16px 32px",
+    backgroundColor: "#eee",
   },
-
   button: {
-    width: "100px",
+    width: "190px",
     marginTop: "10px",
     height: "40px",
     borderRadius: "5px",
@@ -84,6 +87,13 @@ const classes = {
     justifyContent: "flex-start",
     gap: "10px",
   },
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "left",
+    gap: "10px",
+  },
 };
 
 const validationSchema = Yup.object({
@@ -95,21 +105,13 @@ const validationSchema = Yup.object({
       ? schema.required("Description Required")
       : schema.notRequired()
   ),
-  companyName: Yup.string().when("inputType", (inputType, schema) =>
-    inputType[0] === "quickStart"
-      ? schema.required("Company Name Required")
-      : schema.notRequired()
-  ),
+  companyName: Yup.string().required("Company Name Required"),
   surveyType: Yup.string().when("inputType", (inputType, schema) =>
     inputType[0] === "quickStart"
-      ? schema.required("Survey Type Required (e.g. Employee Engagement)")
+      ? schema.required("Survey Type Required")
       : schema.notRequired()
   ),
-  industry: Yup.string().when("inputType", (inputType, schema) =>
-    inputType[0] === "quickStart"
-      ? schema.required("Industry Required (e.g. Technology)")
-      : schema.notRequired()
-  ),
+  industry: Yup.string().notRequired(),
   numberOfQuestions: Yup.number().when("inputType", (inputType, schema) =>
     inputType[0] === "quickStart"
       ? schema.required("Number of Questions Required")
@@ -123,6 +125,7 @@ const SurveyPromptForm = () => {
       case "textInput":
         // Deal with the text input variation call to backend
         // Go to the next page with the survey json
+        // dont send the survey type and number of questions (they may be in the values object)
         break;
 
       default:
@@ -151,7 +154,6 @@ const SurveyPromptForm = () => {
                 flexDirection: "column",
                 gap: "10px",
                 width: "100%",
-                paddingTop: "20px",
               }}
             >
               <Box
@@ -176,7 +178,7 @@ const SurveyPromptForm = () => {
                     };
                   }) => (
                     <Box display="flex">
-                      <Box display="flex" alignItems="center">
+                      <Box display="flex" alignItems="center" padding="0 10px">
                         <Radio
                           {...field}
                           id="quickStart"
@@ -207,7 +209,7 @@ const SurveyPromptForm = () => {
                 </Field>
               </Box>
               {values.inputType && (
-                <Box sx={classes.surveyOptionsContainer}>
+                <Box sx={classes.container}>
                   {values.inputType === "quickStart" && (
                     <>
                       <Typography
@@ -220,6 +222,7 @@ const SurveyPromptForm = () => {
                         gap="10px"
                         flexDirection="column"
                         alignItems="flex-start"
+                        padding="10px"
                       >
                         <label htmlFor="companyName">
                           1. What is the name of your company?
@@ -230,6 +233,7 @@ const SurveyPromptForm = () => {
                             id="companyName"
                             name="companyName"
                             style={classes.input}
+                            placeholder="e.g. Alida"
                           />
                           {errors.companyName && touched.companyName && (
                             <Box sx={classes.error}>{errors.companyName}</Box>
@@ -241,30 +245,10 @@ const SurveyPromptForm = () => {
                         gap="10px"
                         flexDirection="column"
                         alignItems="flex-start"
-                      >
-                        <label htmlFor="surveyType">
-                          2. What is the purpose of the survey?
-                        </label>
-                        <Box sx={{ width: "80%" }}>
-                          <Field
-                            as="input"
-                            id="surveyType"
-                            name="surveyType"
-                            style={classes.input}
-                          />
-                          {errors.surveyType && touched.surveyType && (
-                            <Box sx={classes.error}>{errors.surveyType}</Box>
-                          )}
-                        </Box>
-                      </Box>
-                      <Box
-                        display="flex"
-                        gap="10px"
-                        flexDirection="column"
-                        alignItems="flex-start"
+                        padding="10px"
                       >
                         <label htmlFor="industry">
-                          3. What industry is your company in?
+                          2. What industry is your company in?
                         </label>
                         <Box sx={{ width: "80%" }}>
                           <Field
@@ -272,6 +256,7 @@ const SurveyPromptForm = () => {
                             id="industry"
                             name="industry"
                             style={classes.input}
+                            placeholder="e.g. Technology"
                           />
                           {errors.industry && touched.industry && (
                             <Box sx={classes.error}>{errors.industry}</Box>
@@ -283,6 +268,30 @@ const SurveyPromptForm = () => {
                         gap="10px"
                         flexDirection="column"
                         alignItems="flex-start"
+                        padding="10px"
+                      >
+                        <label htmlFor="surveyType">
+                          3. What is the survey type?
+                        </label>
+                        <Box sx={{ width: "80%" }}>
+                          <Field
+                            as="input"
+                            id="surveyType"
+                            name="surveyType"
+                            style={classes.input}
+                            placeholder="e.g. Customer Satisfaction"
+                          />
+                          {errors.surveyType && touched.surveyType && (
+                            <Box sx={classes.error}>{errors.surveyType}</Box>
+                          )}
+                        </Box>
+                      </Box>
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                        padding="10px"
                       >
                         <label htmlFor="numberOfQuestions">
                           4. How many questions would you like in your survey?
@@ -293,6 +302,7 @@ const SurveyPromptForm = () => {
                             id="numberOfQuestions"
                             name="numberOfQuestions"
                             style={classes.input}
+                            placeholder="e.g. 10"
                           />
                           {errors.numberOfQuestions &&
                             touched.numberOfQuestions && (
@@ -316,9 +326,57 @@ const SurveyPromptForm = () => {
                         gap="10px"
                         flexDirection="column"
                         alignItems="flex-start"
+                        padding="10px"
+                      >
+                        <label htmlFor="companyName">
+                          1. What is the name of your company?
+                        </label>
+                        <Box sx={{ width: "80%" }}>
+                          <Field
+                            as="input"
+                            id="companyName"
+                            name="companyName"
+                            style={classes.input}
+                            placeholder="e.g. Alida"
+                          />
+                          {errors.companyName && touched.companyName && (
+                            <Box sx={classes.error}>{errors.companyName}</Box>
+                          )}
+                        </Box>
+                      </Box>
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                        padding="10px"
+                      >
+                        <label htmlFor="industry">
+                          2. What industry is your company in?
+                        </label>
+                        <Box sx={{ width: "80%" }}>
+                          <Field
+                            as="input"
+                            id="industry"
+                            name="industry"
+                            style={classes.input}
+                            placeholder="e.g. Technology"
+                          />
+                          {errors.industry && touched.industry && (
+                            <Box sx={classes.error}>{errors.industry}</Box>
+                          )}
+                        </Box>
+                      </Box>
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                        padding="10px"
                       >
                         <label htmlFor="textInput">
-                          Please describe the survey you would like to create:
+                          3. Please describe (in detail) the survey you would
+                          like to create:
                         </label>
                         <Box style={{ width: "95%" }}>
                           <Field
@@ -326,6 +384,7 @@ const SurveyPromptForm = () => {
                             id="textInput"
                             name="textInput"
                             style={classes.textArea}
+                            placeholder={`Enter survey description...\n\nCan be:\n- A detailed description of the survey you want to create\n- A text version of the survey you want to convert to an Alida survey`}
                           />
                           {errors.textInput && touched.textInput && (
                             <Box sx={classes.error}>{errors.textInput}</Box>
@@ -342,7 +401,7 @@ const SurveyPromptForm = () => {
                         variant="outlined"
                         disabled={Object.keys(errors).length > 0}
                       >
-                        Submit
+                        Generate Survey
                       </Button>
                     )}
                   </Box>
