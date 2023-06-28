@@ -2,7 +2,7 @@ export type Config = {
   /**
    * Could be a textArea or a fileUpload option
    */
-  inputType?: "quickStart" | "textInput";
+  inputType: "quickStart" | "textInput";
   textInput?: string;
   companyName?: string;
   surveyType?: string;

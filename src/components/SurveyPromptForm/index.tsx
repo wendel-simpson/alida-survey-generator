@@ -5,7 +5,7 @@ import { Config } from "../../types";
 import { Button, Radio, Typography } from "@mui/material";
 
 const initialValues: Config = {
-  inputType: undefined,
+  inputType: "quickStart",
   textInput: "",
   companyName: "",
   surveyType: "",
@@ -18,9 +18,39 @@ const classes = {
     fontSize: "12px",
     fontFamily: "Roboto",
     fontWeight: "500",
-    color: "red",
+    color: "#E55940",
     textAlign: "left",
     paddingTop: "5px",
+  },
+  input: {
+    width: "100%",
+    borderRadius: "4px",
+    height: "24px",
+    padding: "4px 8px",
+    fontFamily: "Roboto",
+    fontSize: "16px",
+  },
+  textArea: {
+    width: "100%",
+    borderRadius: "4px",
+    height: "200px",
+    padding: "4px 8px",
+    fontFamily: "Roboto",
+    fontSize: "16px",
+  },
+  title: {
+    fontSize: "20px",
+    fontFamily: "Roboto",
+    fontWeight: "600",
+    textAlign: "left",
+  },
+  form: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    gap: "10px",
   },
 
   button: {
@@ -44,6 +74,16 @@ const classes = {
       color: "#E55940",
     },
   },
+  surveyOptionsContainer: {
+    border: "2px solid black",
+    borderRadius: "5px",
+    padding: "16px",
+    backgroundColor: "#eee",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    gap: "10px",
+  },
 };
 
 const validationSchema = Yup.object({
@@ -52,7 +92,7 @@ const validationSchema = Yup.object({
     .min(1, "Must be at least 1 character"),
   textInput: Yup.string().when("inputType", (inputType, schema) =>
     inputType[0] === "textInput"
-      ? schema.required("Required")
+      ? schema.required("Description Required")
       : schema.notRequired()
   ),
   companyName: Yup.string().when("inputType", (inputType, schema) =>
@@ -103,148 +143,213 @@ const SurveyPromptForm = () => {
         console.log("errors", errors, "values", values);
 
         return (
-          <Form
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              flexDirection: "column",
-              gap: "10px",
-              width: "100%",
-              paddingTop: "20px",
-            }}
-          >
-            <Box display="flex" gap="10px" alignItems="center">
-              <Typography>Generator Method</Typography>
-              <Field name="inputType">
-                {({
-                  field,
-                }: {
-                  field: {
-                    value: string;
-                    onChange: (
-                      event: React.ChangeEvent<HTMLInputElement>
-                    ) => void;
-                  };
-                }) => (
-                  <>
-                    <Box display="flex" alignItems="center">
-                      <Radio
-                        {...field}
-                        id="quickStart"
-                        sx={classes.radio}
-                        value="quickStart"
-                        checked={field.value === "quickStart"}
-                        onChange={field.onChange}
-                      />
-                      <Typography>Quick Start</Typography>
+          <Box sx={classes.form}>
+            <Form
+              style={{
+                display: "flex",
+                justifyContent: "flex-start",
+                flexDirection: "column",
+                gap: "10px",
+                width: "100%",
+                paddingTop: "20px",
+              }}
+            >
+              <Box
+                display="flex"
+                gap="10px"
+                flexDirection="column"
+                alignItems="flex-start"
+                paddingBottom={1}
+              >
+                <Typography sx={classes.title}>
+                  Choose your generator method
+                </Typography>
+                <Field name="inputType">
+                  {({
+                    field,
+                  }: {
+                    field: {
+                      value: string;
+                      onChange: (
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => void;
+                    };
+                  }) => (
+                    <Box display="flex">
+                      <Box display="flex" alignItems="center">
+                        <Radio
+                          {...field}
+                          id="quickStart"
+                          sx={classes.radio}
+                          value="quickStart"
+                          checked={field.value === "quickStart"}
+                          onChange={field.onChange}
+                        />
+                        <Typography onClick={() => handleChange("quickStart")}>
+                          Quick Start
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center">
+                        <Radio
+                          {...field}
+                          sx={classes.radio}
+                          id="textInput"
+                          value="textInput"
+                          checked={field.value === "textInput"}
+                          onChange={field.onChange}
+                        />
+                        <Typography onClick={() => handleChange("textInput")}>
+                          Text Input
+                        </Typography>
+                      </Box>
                     </Box>
-                    <Box display="flex" alignItems="center">
-                      <Radio
-                        {...field}
-                        sx={classes.radio}
-                        id="textInput"
-                        value="textInput"
-                        checked={field.value === "textInput"}
-                        onChange={field.onChange}
-                      />
-                      <Typography>Text Input</Typography>
-                    </Box>
-                  </>
-                )}
-              </Field>
-            </Box>
-            {values.inputType === "quickStart" && (
-              <>
-                <Box display="flex" gap="10px">
-                  <label htmlFor="companyName">
-                    What is the name of your company?
-                  </label>
-                  <Box>
-                    <Field as="input" id="companyName" name="companyName" />
-                    {errors.companyName && touched.companyName && (
-                      <Box sx={classes.error}>{errors.companyName}</Box>
-                    )}
-                  </Box>
-                </Box>
-                <Box display="flex" gap="10px">
-                  <label htmlFor="surveyType">
-                    What is the purpose of the survey?
-                  </label>
-                  <Box>
-                    <Field
-                      as="textarea"
-                      id="surveyType"
-                      rows="3"
-                      cols="30"
-                      name="surveyType"
-                    />
-                    {errors.surveyType && touched.surveyType && (
-                      <Box sx={classes.error}>{errors.surveyType}</Box>
-                    )}
-                  </Box>
-                </Box>
-                <Box display="flex" gap="10px">
-                  <label htmlFor="industry">
-                    What industry is your company in?
-                  </label>
-                  <Box>
-                    <Field as="input" id="industry" name="industry" />
-                    {errors.industry && touched.industry && (
-                      <Box sx={classes.error}>{errors.industry}</Box>
-                    )}
-                  </Box>
-                </Box>
-                <Box display="flex" gap="10px">
-                  <label htmlFor="numberOfQuestions">
-                    How many questions would you like in your survey?
-                  </label>
-                  <Box>
-                    <Field
-                      type="number"
-                      id="numberOfQuestions"
-                      name="numberOfQuestions"
-                    />
-                    {errors.numberOfQuestions && touched.numberOfQuestions && (
-                      <Box sx={classes.error}>{errors.numberOfQuestions}</Box>
-                    )}
-                  </Box>
-                </Box>
-              </>
-            )}
-            {values.inputType === "textInput" && (
-              <>
-                <Box display="flex" gap="10px">
-                  <label htmlFor="textInput">
-                    Please describe the survey you would like to create:
-                  </label>
-                  <Box>
-                    <Field
-                      as="textarea"
-                      id="textInput"
-                      rows="10"
-                      cols="50"
-                      name="textInput"
-                    />
-                    {errors.textInput && touched.textInput && (
-                      <Box sx={classes.error}>{errors.textInput}</Box>
-                    )}
-                  </Box>
-                </Box>
-              </>
-            )}
-            <Box display="flex" justifyContent="flex-end" gap="10px">
+                  )}
+                </Field>
+              </Box>
               {values.inputType && (
-                <Button
-                  sx={classes.button}
-                  type="submit"
-                  variant="outlined"
-                  disabled={Object.keys(errors).length > 0}
-                >
-                  Submit
-                </Button>
+                <Box sx={classes.surveyOptionsContainer}>
+                  {values.inputType === "quickStart" && (
+                    <>
+                      <Typography
+                        sx={{ ...classes.title, paddingBottom: "10px" }}
+                      >
+                        Survey Description
+                      </Typography>
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                      >
+                        <label htmlFor="companyName">
+                          1. What is the name of your company?
+                        </label>
+                        <Box sx={{ width: "80%" }}>
+                          <Field
+                            as="input"
+                            id="companyName"
+                            name="companyName"
+                            style={classes.input}
+                          />
+                          {errors.companyName && touched.companyName && (
+                            <Box sx={classes.error}>{errors.companyName}</Box>
+                          )}
+                        </Box>
+                      </Box>
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                      >
+                        <label htmlFor="surveyType">
+                          2. What is the purpose of the survey?
+                        </label>
+                        <Box sx={{ width: "80%" }}>
+                          <Field
+                            as="input"
+                            id="surveyType"
+                            name="surveyType"
+                            style={classes.input}
+                          />
+                          {errors.surveyType && touched.surveyType && (
+                            <Box sx={classes.error}>{errors.surveyType}</Box>
+                          )}
+                        </Box>
+                      </Box>
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                      >
+                        <label htmlFor="industry">
+                          3. What industry is your company in?
+                        </label>
+                        <Box sx={{ width: "80%" }}>
+                          <Field
+                            as="input"
+                            id="industry"
+                            name="industry"
+                            style={classes.input}
+                          />
+                          {errors.industry && touched.industry && (
+                            <Box sx={classes.error}>{errors.industry}</Box>
+                          )}
+                        </Box>
+                      </Box>
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                      >
+                        <label htmlFor="numberOfQuestions">
+                          4. How many questions would you like in your survey?
+                        </label>
+                        <Box sx={{ width: "80%" }}>
+                          <Field
+                            type="number"
+                            id="numberOfQuestions"
+                            name="numberOfQuestions"
+                            style={classes.input}
+                          />
+                          {errors.numberOfQuestions &&
+                            touched.numberOfQuestions && (
+                              <Box sx={classes.error}>
+                                {errors.numberOfQuestions}
+                              </Box>
+                            )}
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                  {values.inputType === "textInput" && (
+                    <>
+                      <Typography
+                        sx={{ ...classes.title, paddingBottom: "10px" }}
+                      >
+                        Survey Description
+                      </Typography>
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                      >
+                        <label htmlFor="textInput">
+                          Please describe the survey you would like to create:
+                        </label>
+                        <Box style={{ width: "95%" }}>
+                          <Field
+                            as="textarea"
+                            id="textInput"
+                            name="textInput"
+                            style={classes.textArea}
+                          />
+                          {errors.textInput && touched.textInput && (
+                            <Box sx={classes.error}>{errors.textInput}</Box>
+                          )}
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                  <Box display="flex" justifyContent="flex-end" gap="10px">
+                    {values.inputType && (
+                      <Button
+                        sx={classes.button}
+                        type="submit"
+                        variant="outlined"
+                        disabled={Object.keys(errors).length > 0}
+                      >
+                        Submit
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
               )}
-            </Box>
-          </Form>
+            </Form>
+          </Box>
         );
       }}
     </Formik>

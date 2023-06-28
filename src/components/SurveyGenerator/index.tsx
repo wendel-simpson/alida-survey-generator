@@ -8,8 +8,8 @@ const classes = {
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    margin: "20px 40px",
-    width: "100%",
+    padding: "32px",
+    minWidth: 500,
   },
 };
 
