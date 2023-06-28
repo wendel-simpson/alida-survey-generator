@@ -2,7 +2,7 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { Box } from "@mui/system";
 import { Config } from "../../types";
-import { Typography } from "@mui/material";
+import { Button, Radio, Typography } from "@mui/material";
 
 const initialValues: Config = {
   inputType: undefined,
@@ -11,6 +11,39 @@ const initialValues: Config = {
   surveyType: "",
   numberOfQuestions: 10,
   industry: "",
+};
+
+const classes = {
+  error: {
+    fontSize: "12px",
+    fontFamily: "Roboto",
+    fontWeight: "500",
+    color: "red",
+    textAlign: "left",
+    paddingTop: "5px",
+  },
+
+  button: {
+    width: "100px",
+    marginTop: "10px",
+    height: "40px",
+    borderRadius: "5px",
+    backgroundColor: "#3f51b5",
+    color: "white",
+    fontSize: "16px",
+    "&:hover": {
+      backgroundColor: "#1a237e",
+    },
+    "&:disabled": {
+      backgroundColor: "#9fa8da",
+      color: "#e8eaf6",
+    },
+  },
+  radio: {
+    "&.Mui-checked": {
+      color: "#E55940",
+    },
+  },
 };
 
 const validationSchema = Yup.object({
@@ -24,22 +57,22 @@ const validationSchema = Yup.object({
   ),
   companyName: Yup.string().when("inputType", (inputType, schema) =>
     inputType[0] === "quickStart"
-      ? schema.required("Required")
+      ? schema.required("Company Name Required")
       : schema.notRequired()
   ),
   surveyType: Yup.string().when("inputType", (inputType, schema) =>
     inputType[0] === "quickStart"
-      ? schema.required("Required")
+      ? schema.required("Survey Type Required (e.g. Employee Engagement)")
       : schema.notRequired()
   ),
   industry: Yup.string().when("inputType", (inputType, schema) =>
     inputType[0] === "quickStart"
-      ? schema.required("Required")
+      ? schema.required("Industry Required (e.g. Technology)")
       : schema.notRequired()
   ),
   numberOfQuestions: Yup.number().when("inputType", (inputType, schema) =>
     inputType[0] === "quickStart"
-      ? schema.required("Required")
+      ? schema.required("Number of Questions Required")
       : schema.notRequired()
   ),
 });
@@ -77,12 +110,11 @@ const SurveyPromptForm = () => {
               flexDirection: "column",
               gap: "10px",
               width: "100%",
+              paddingTop: "20px",
             }}
           >
-            <Box display="flex" gap="10px">
-              <label>
-                <Typography>Method:</Typography>
-              </label>
+            <Box display="flex" gap="10px" alignItems="center">
+              <Typography>Generator Method</Typography>
               <Field name="inputType">
                 {({
                   field,
@@ -95,24 +127,28 @@ const SurveyPromptForm = () => {
                   };
                 }) => (
                   <>
-                    <input
-                      {...field}
-                      type="radio"
-                      id="quickStart"
-                      value="quickStart"
-                      checked={field.value === "quickStart"}
-                      onChange={field.onChange}
-                    />
-                    <label htmlFor="quickStart">Quick Start</label>
-                    <input
-                      {...field}
-                      type="radio"
-                      id="textInput"
-                      value="textInput"
-                      checked={field.value === "textInput"}
-                      onChange={field.onChange}
-                    />
-                    <label htmlFor="textInput">Text Input</label>
+                    <Box display="flex" alignItems="center">
+                      <Radio
+                        {...field}
+                        id="quickStart"
+                        sx={classes.radio}
+                        value="quickStart"
+                        checked={field.value === "quickStart"}
+                        onChange={field.onChange}
+                      />
+                      <Typography>Quick Start</Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Radio
+                        {...field}
+                        sx={classes.radio}
+                        id="textInput"
+                        value="textInput"
+                        checked={field.value === "textInput"}
+                        onChange={field.onChange}
+                      />
+                      <Typography>Text Input</Typography>
+                    </Box>
                   </>
                 )}
               </Field>
@@ -123,47 +159,55 @@ const SurveyPromptForm = () => {
                   <label htmlFor="companyName">
                     What is the name of your company?
                   </label>
-                  <Field as="input" id="companyName" name="companyName" />
-                  {errors.companyName && touched.companyName && (
-                    <Box>{errors.companyName}</Box>
-                  )}
+                  <Box>
+                    <Field as="input" id="companyName" name="companyName" />
+                    {errors.companyName && touched.companyName && (
+                      <Box sx={classes.error}>{errors.companyName}</Box>
+                    )}
+                  </Box>
                 </Box>
                 <Box display="flex" gap="10px">
                   <label htmlFor="surveyType">
                     What is the purpose of the survey?
                   </label>
-                  <Field
-                    as="textarea"
-                    id="surveyType"
-                    rows="1"
-                    cols="50"
-                    name="surveyType"
-                  />
-                  {errors.surveyType && touched.surveyType && (
-                    <Box>{errors.surveyType}</Box>
-                  )}
+                  <Box>
+                    <Field
+                      as="textarea"
+                      id="surveyType"
+                      rows="3"
+                      cols="30"
+                      name="surveyType"
+                    />
+                    {errors.surveyType && touched.surveyType && (
+                      <Box sx={classes.error}>{errors.surveyType}</Box>
+                    )}
+                  </Box>
                 </Box>
                 <Box display="flex" gap="10px">
                   <label htmlFor="industry">
                     What industry is your company in?
                   </label>
-                  <Field as="input" id="industry" name="industry" />
-                  {errors.industry && touched.industry && (
-                    <Box>{errors.industry}</Box>
-                  )}
+                  <Box>
+                    <Field as="input" id="industry" name="industry" />
+                    {errors.industry && touched.industry && (
+                      <Box sx={classes.error}>{errors.industry}</Box>
+                    )}
+                  </Box>
                 </Box>
                 <Box display="flex" gap="10px">
                   <label htmlFor="numberOfQuestions">
                     How many questions would you like in your survey?
                   </label>
-                  <Field
-                    type="number"
-                    id="numberOfQuestions"
-                    name="numberOfQuestions"
-                  />
-                  {errors.numberOfQuestions && touched.numberOfQuestions && (
-                    <Box>{errors.numberOfQuestions}</Box>
-                  )}
+                  <Box>
+                    <Field
+                      type="number"
+                      id="numberOfQuestions"
+                      name="numberOfQuestions"
+                    />
+                    {errors.numberOfQuestions && touched.numberOfQuestions && (
+                      <Box sx={classes.error}>{errors.numberOfQuestions}</Box>
+                    )}
+                  </Box>
                 </Box>
               </>
             )}
@@ -173,24 +217,31 @@ const SurveyPromptForm = () => {
                   <label htmlFor="textInput">
                     Please describe the survey you would like to create:
                   </label>
-                  <Field
-                    as="textarea"
-                    id="textInput"
-                    rows="1"
-                    cols="50"
-                    name="textInput"
-                  />
-                  {errors.textInput && touched.textInput && (
-                    <Box>{errors.textInput}</Box>
-                  )}
+                  <Box>
+                    <Field
+                      as="textarea"
+                      id="textInput"
+                      rows="10"
+                      cols="50"
+                      name="textInput"
+                    />
+                    {errors.textInput && touched.textInput && (
+                      <Box sx={classes.error}>{errors.textInput}</Box>
+                    )}
+                  </Box>
                 </Box>
               </>
             )}
-            <Box display="flex" gap="10px">
+            <Box display="flex" justifyContent="flex-end" gap="10px">
               {values.inputType && (
-                <button type="submit" disabled={Object.keys(errors).length > 0}>
+                <Button
+                  sx={classes.button}
+                  type="submit"
+                  variant="outlined"
+                  disabled={Object.keys(errors).length > 0}
+                >
                   Submit
-                </button>
+                </Button>
               )}
             </Box>
           </Form>
