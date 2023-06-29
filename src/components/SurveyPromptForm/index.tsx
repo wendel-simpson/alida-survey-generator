@@ -7,7 +7,7 @@ import { useState } from "react";
 import * as React from "react";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-const host = "10.20.33.86"; // '10.20.33.86'
+const host = "localhost"; // '10.20.33.86'
 
 const initialValues: Config = {
   inputType: "quickStart",
