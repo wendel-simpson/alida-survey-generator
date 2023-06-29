@@ -1,4 +1,4 @@
-import { Formik, Form, Field, FormikErrors } from "formik";
+import { Formik, Form, Field, FormikErrors, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { Box } from "@mui/system";
 import { Config } from "../../types";
@@ -6,7 +6,7 @@ import { Button, CircularProgress, Radio, Typography } from "@mui/material";
 import { useState } from "react";
 import * as React from "react";
 
-const host = "localhost"; // '10.20.33.86'
+const host = "10.20.33.86"; // '10.20.33.86'
 
 const initialValues: Config = {
   inputType: "quickStart",
@@ -138,7 +138,8 @@ const SurveyPromptForm = () => {
   const [fileName, setFileName] = useState("");
 
   const [downloadInProgress, setDownloadInProgress] = React.useState(false);
-  const handleSubmit = (values: Config) => {
+
+  const handleSubmit = (values: Config, helpers: FormikHelpers<Config>) => {
     setDownloadInProgress(true);
     const fileName = `${values.companyName}_${values.surveyType}_survey.json`;
 
@@ -159,7 +160,10 @@ const SurveyPromptForm = () => {
         link.click();
       })
       .catch((error) => console.error(error))
-      .finally(() => setDownloadInProgress(false));
+      .finally(() => {
+        setDownloadInProgress(false);
+        helpers.resetForm();
+      });
     console.log("values to send to the BE", values);
   };
 
@@ -202,7 +206,9 @@ const SurveyPromptForm = () => {
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={handleSubmit}
+      onSubmit={(values, helpers) => {
+        handleSubmit(values, helpers);
+      }}
       validationSchema={validationSchema}
     >
       {({
@@ -564,6 +570,7 @@ const SurveyPromptForm = () => {
                         disabled={
                           Object.keys(errors).length > 0 || downloadInProgress
                         }
+                        onClick={() => {}}
                       >
                         Generate Survey
                       </Button>
