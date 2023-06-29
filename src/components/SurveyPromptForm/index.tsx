@@ -171,6 +171,8 @@ const SurveyPromptForm = () => {
     console.log("values to send to the BE", values);
   };
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
   const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
     setErrors: (errors: FormikErrors<Config>) => void,
@@ -182,12 +184,22 @@ const SurveyPromptForm = () => {
   ) => {
     const uploadedFile = event.target.files?.[0];
     if (uploadedFile) {
-      const allowedExtensions = [".doc", ".docx", ".txt"];
+      const allowedExtensions = [".txt"];
       const fileExtension = uploadedFile.name.split(".").pop()?.toLowerCase();
+
+      if (uploadedFile.size > MAX_FILE_SIZE) {
+        setErrors({
+          fileUpload: "File size exceeds the maximum limit of 5MB.",
+        });
+        setFile(null);
+        setFileName("");
+      }
+
+      console.log("fileExtension", fileExtension);
 
       if (!allowedExtensions.includes(`.${fileExtension}`)) {
         setErrors({
-          fileUpload: "Only Word documents or TXT files are allowed.",
+          fileUpload: "Only TXT files are allowed currently.",
         });
         setFile(null);
         setFileName("");
@@ -195,14 +207,16 @@ const SurveyPromptForm = () => {
         setFile(uploadedFile);
         setFileName(uploadedFile.name);
 
-        // Parse the file and set the text input
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const text = e.target?.result;
-          setFieldValue("textInput", text, true); // Set the value of "textInput" field
-          setFieldValue("fileUpload", uploadedFile, true); // Set the value of "fileUpload" field
-        };
-        reader.readAsText(uploadedFile);
+        if (fileExtension === "txt") {
+          // Parse the text file and set the text input
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const text = e.target?.result;
+            setFieldValue("textInput", text, true); // Set the value of "textInput" field
+            setFieldValue("fileUpload", uploadedFile, true); // Set the value of "fileUpload" field
+          };
+          reader.readAsText(uploadedFile);
+        }
       }
     }
   };
@@ -512,7 +526,7 @@ const SurveyPromptForm = () => {
                           padding="10px"
                         >
                           <label htmlFor="fileUpload">
-                            Please upload a Word or TXT file:
+                            Please upload .txt file:
                           </label>
                           <Box sx={classes.input}>
                             <input
@@ -531,8 +545,11 @@ const SurveyPromptForm = () => {
                         </Box>
                       )}
                       {values.isFileUpload === "yes" &&
-                        errors.fileUpload ===
-                          "Only Word documents or TXT files are allowed." && (
+                        [
+                          "Only Word documents or TXT files are allowed.",
+                          "Only TXT files are allowed currently.",
+                          "File size exceeds the maximum limit of 5MB.",
+                        ].includes(errors.fileUpload ?? "") && (
                           <Box sx={classes.error}>{errors.fileUpload}</Box>
                         )}
                     </>
