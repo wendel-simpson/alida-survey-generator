@@ -6,8 +6,9 @@ import { Radio, Typography, Button } from "@mui/material";
 import { useState } from "react";
 import * as React from "react";
 import LoadingButton from "@mui/lab/LoadingButton";
+import SurveyGenerator from "../SurveyGenerator";
 
-const host = "localhost"; // '10.20.33.86'
+const host = '10.20.33.86'
 
 const initialValues: Config = {
   inputType: "quickStart",
@@ -139,7 +140,11 @@ const validationSchema = Yup.object({
   ),
 });
 
-const SurveyPromptForm = () => {
+type Props = {
+  setShowSuccess: (isSuccess: boolean) => void 
+}
+
+const SurveyPromptForm = (props: Props) => {
   const [file, setFile] = useState<File | null>(null);
   const [, setFileName] = useState("");
 
@@ -169,8 +174,11 @@ const SurveyPromptForm = () => {
       .finally(() => {
         setDownloadInProgress(false);
         helpers.resetForm();
-      });
+        props.setShowSuccess(true)
+        // setShowSuccess(true);
+      });      
     console.log("values to send to the BE", values);
+    return true
   };
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
