@@ -1,11 +1,12 @@
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, FormikErrors } from "formik";
 import * as Yup from "yup";
 import { Box } from "@mui/system";
 import { Config } from "../../types";
 import { Button, CircularProgress, Radio, Typography } from "@mui/material";
-import * as React from 'react';
+import { useState } from "react";
+import * as React from "react";
 
-const host = 'localhost'; // '10.20.33.86'
+const host = "localhost"; // '10.20.33.86'
 
 const initialValues: Config = {
   inputType: "quickStart",
@@ -14,6 +15,8 @@ const initialValues: Config = {
   surveyType: "",
   numberOfQuestions: 10,
   industry: "",
+  isFileUpload: "no",
+  fileUpload: null,
 };
 
 const classes = {
@@ -120,42 +123,79 @@ const validationSchema = Yup.object({
       ? schema.required("Number of Questions Required")
       : schema.notRequired()
   ),
+  isFileUpload: Yup.string().required("Required"),
+  fileUpload: Yup.mixed().when(
+    ["inputType", "isFileUpload"],
+    (mixedArray, schema) =>
+      mixedArray[0] === "textInput" && mixedArray[1] === "yes"
+        ? schema.required("File Required")
+        : schema.notRequired()
+  ),
 });
 
 const SurveyPromptForm = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState("");
+
   const [downloadInProgress, setDownloadInProgress] = React.useState(false);
   const handleSubmit = (values: Config) => {
     setDownloadInProgress(true);
     const fileName = `${values.companyName}_${values.surveyType}_survey.json`;
-    switch (values.inputType) {
-      case "textInput":
-        // Deal with the text input variation call to backend
-        // Go to the next page with the survey json
-        // dont send the survey type and number of questions (they may be in the values object)
 
-      default:
-        // Deal with the quick start variation call to backend
-        // Go to the next page with the survey json
-        fetch(`http://${host}:5000/generate_survey`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(values)
-        })
-        .then(response => response.blob())
-        .then(blob => {
-          const url = window.URL.createObjectURL(new Blob([blob]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', fileName);
-          document.body.appendChild(link);
-          link.click();
-        })
-        .catch(error => console.error(error))
-        .finally(() => setDownloadInProgress(false));
-        console.log("values to send to the BE", values);
-        break;
+    fetch(`http://${host}:5000/generate_survey`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    })
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch((error) => console.error(error))
+      .finally(() => setDownloadInProgress(false));
+    console.log("values to send to the BE", values);
+  };
+
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    setErrors: (errors: FormikErrors<Config>) => void,
+    setFieldValue: (
+      field: string,
+      value: any,
+      shouldValidate?: boolean | undefined
+    ) => void
+  ) => {
+    const uploadedFile = event.target.files?.[0];
+    if (uploadedFile) {
+      const allowedExtensions = [".doc", ".docx", ".txt"];
+      const fileExtension = uploadedFile.name.split(".").pop()?.toLowerCase();
+
+      if (!allowedExtensions.includes(`.${fileExtension}`)) {
+        setErrors({
+          fileUpload: "Only Word documents or TXT files are allowed.",
+        });
+        setFile(null);
+        setFileName("");
+      } else {
+        setFile(uploadedFile);
+        setFileName(uploadedFile.name);
+
+        // Parse the file and set the text input
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target?.result;
+          setFieldValue("textInput", text, true); // Set the value of "textInput" field
+          setFieldValue("fileUpload", uploadedFile, true); // Set the value of "fileUpload" field
+        };
+        reader.readAsText(uploadedFile);
+      }
     }
   };
 
@@ -165,7 +205,15 @@ const SurveyPromptForm = () => {
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
     >
-      {({ errors, touched, values, handleChange }) => {
+      {({
+        errors,
+        touched,
+        values,
+        handleChange,
+        setErrors,
+        setFieldValue,
+        resetForm,
+      }) => {
         console.log("errors", errors, "values", values);
 
         return (
@@ -395,11 +443,102 @@ const SurveyPromptForm = () => {
                         gap="10px"
                         flexDirection="column"
                         alignItems="flex-start"
+                        paddingBottom={1}
+                      >
+                        <Typography sx={{ paddingLeft: "10px" }}>
+                          3. Would you like to upload a text file version of
+                          your survey?
+                        </Typography>
+                        <Field name="isFileUpload">
+                          {({
+                            field,
+                          }: {
+                            field: {
+                              value: string;
+                              onChange: (
+                                event: React.ChangeEvent<HTMLInputElement>
+                              ) => void;
+                            };
+                          }) => (
+                            <Box display="flex">
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                padding="0 10px"
+                              >
+                                <Radio
+                                  {...field}
+                                  id="no"
+                                  sx={classes.radio}
+                                  value="no"
+                                  checked={field.value === "no"}
+                                  onChange={field.onChange}
+                                />
+                                <Typography>No</Typography>
+                              </Box>
+                              <Box display="flex" alignItems="center">
+                                <Radio
+                                  {...field}
+                                  sx={classes.radio}
+                                  id="yes"
+                                  value="yes"
+                                  checked={field.value === "yes"}
+                                  onChange={field.onChange}
+                                />
+                                <Typography>Yes</Typography>
+                              </Box>
+                            </Box>
+                          )}
+                        </Field>
+                      </Box>
+                      {values.isFileUpload === "yes" && !file && (
+                        <Box
+                          display="flex"
+                          gap="10px"
+                          flexDirection="column"
+                          alignItems="flex-start"
+                          padding="10px"
+                        >
+                          <label htmlFor="fileUpload">
+                            Please upload a Word or TXT file:
+                          </label>
+                          <Box sx={classes.input}>
+                            <input
+                              type="file"
+                              id="fileUpload"
+                              name="fileUpload"
+                              onChange={(e) =>
+                                handleFileUpload(e, setErrors, setFieldValue)
+                              }
+                            />
+                            <Typography>{fileName}</Typography>
+                          </Box>
+                          {errors.fileUpload && touched.fileUpload && (
+                            <Box sx={classes.error}>{errors.fileUpload}</Box>
+                          )}
+                        </Box>
+                      )}
+                      {values.isFileUpload === "yes" &&
+                        errors.fileUpload ===
+                          "Only Word documents or TXT files are allowed." && (
+                          <Box sx={classes.error}>{errors.fileUpload}</Box>
+                        )}
+                    </>
+                  )}
+                  {(values.isFileUpload === "no" ||
+                    (values.isFileUpload === "yes" &&
+                      values.textInput !== "")) &&
+                    values.inputType === "textInput" && (
+                      <Box
+                        display="flex"
+                        gap="10px"
+                        flexDirection="column"
+                        alignItems="flex-start"
                         padding="10px"
                       >
                         <label htmlFor="textInput">
-                          3. Please describe (in detail) the survey you would
-                          like to create:
+                          4. Please describe the survey you would like to
+                          create:
                         </label>
                         <Box style={{ width: "95%" }}>
                           <Field
@@ -414,16 +553,17 @@ const SurveyPromptForm = () => {
                           )}
                         </Box>
                       </Box>
-                    </>
-                  )}
+                    )}
                   <Box display="flex" justifyContent="flex-end" gap="10px">
-                  {downloadInProgress && <CircularProgress/>}
+                    {downloadInProgress && <CircularProgress />}
                     {values.inputType && (
                       <Button
                         sx={classes.button}
                         type="submit"
                         variant="outlined"
-                        disabled={Object.keys(errors).length > 0 || downloadInProgress}
+                        disabled={
+                          Object.keys(errors).length > 0 || downloadInProgress
+                        }
                       >
                         Generate Survey
                       </Button>

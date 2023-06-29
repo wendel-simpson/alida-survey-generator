@@ -8,4 +8,6 @@ export type Config = {
   surveyType?: string;
   numberOfQuestions?: number;
   industry?: string;
+  isFileUpload: "no" | "yes";
+  fileUpload?: File | null;
 };
