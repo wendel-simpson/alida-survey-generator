@@ -2,9 +2,10 @@ import { Formik, Form, Field, FormikErrors, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { Box } from "@mui/system";
 import { Config } from "../../types";
-import { Button, CircularProgress, Radio, Typography } from "@mui/material";
+import { Radio, Typography } from "@mui/material";
 import { useState } from "react";
 import * as React from "react";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const host = "10.20.33.86"; // '10.20.33.86'
 
@@ -120,7 +121,10 @@ const validationSchema = Yup.object({
   industry: Yup.string().required("Industry Required"),
   numberOfQuestions: Yup.number().when("inputType", (inputType, schema) =>
     inputType[0] === "quickStart"
-      ? schema.required("Number of Questions Required")
+      ? schema
+          .required("Number of Questions Required")
+          .min(1, "Number of Questions must be at least 1")
+          .max(100, "Number of Questions must be at most 100")
       : schema.notRequired()
   ),
   isFileUpload: Yup.string().required("Required"),
@@ -379,6 +383,8 @@ const SurveyPromptForm = () => {
                             id="numberOfQuestions"
                             name="numberOfQuestions"
                             style={classes.input}
+                            min="1"
+                            max="100"
                             placeholder="e.g. 10"
                           />
                           {errors.numberOfQuestions &&
@@ -561,9 +567,8 @@ const SurveyPromptForm = () => {
                       </Box>
                     )}
                   <Box display="flex" justifyContent="flex-end" gap="10px">
-                    {downloadInProgress && <CircularProgress />}
                     {values.inputType && (
-                      <Button
+                      <LoadingButton
                         sx={classes.button}
                         type="submit"
                         variant="outlined"
@@ -571,9 +576,10 @@ const SurveyPromptForm = () => {
                           Object.keys(errors).length > 0 || downloadInProgress
                         }
                         onClick={() => {}}
+                        loading={downloadInProgress}
                       >
                         Generate Survey
-                      </Button>
+                      </LoadingButton>
                     )}
                   </Box>
                 </Box>
