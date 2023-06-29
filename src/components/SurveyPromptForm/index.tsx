@@ -2,7 +2,8 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { Box } from "@mui/system";
 import { Config } from "../../types";
-import { Button, Radio, Typography } from "@mui/material";
+import { Button, CircularProgress, Radio, Typography } from "@mui/material";
+import * as React from 'react';
 
 const initialValues: Config = {
   inputType: "quickStart",
@@ -120,17 +121,37 @@ const validationSchema = Yup.object({
 });
 
 const SurveyPromptForm = () => {
+  const [downloadInProgress, setDownloadInProgress] = React.useState(false);
   const handleSubmit = (values: Config) => {
+    setDownloadInProgress(true);
+    const fileName = `${values.companyName}_${values.surveyType}_survey.json`;
     switch (values.inputType) {
       case "textInput":
         // Deal with the text input variation call to backend
         // Go to the next page with the survey json
         // dont send the survey type and number of questions (they may be in the values object)
-        break;
 
       default:
         // Deal with the quick start variation call to backend
         // Go to the next page with the survey json
+        fetch('http://localhost:5000/generate_survey', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(values)
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(new Blob([blob]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', fileName);
+          document.body.appendChild(link);
+          link.click();
+        })
+        .catch(error => console.error(error))
+        .finally(() => setDownloadInProgress(false));
         console.log("values to send to the BE", values);
         break;
     }
@@ -394,12 +415,13 @@ const SurveyPromptForm = () => {
                     </>
                   )}
                   <Box display="flex" justifyContent="flex-end" gap="10px">
+                  {downloadInProgress && <CircularProgress/>}
                     {values.inputType && (
                       <Button
                         sx={classes.button}
                         type="submit"
                         variant="outlined"
-                        disabled={Object.keys(errors).length > 0}
+                        disabled={Object.keys(errors).length > 0 || downloadInProgress}
                       >
                         Generate Survey
                       </Button>
