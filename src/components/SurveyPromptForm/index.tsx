@@ -2,7 +2,7 @@ import { Formik, Form, Field, FormikErrors, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { Box } from "@mui/system";
 import { Config } from "../../types";
-import { Radio, Typography } from "@mui/material";
+import { Radio, Typography, Button } from "@mui/material";
 import { useState } from "react";
 import * as React from "react";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -64,7 +64,7 @@ const classes = {
     backgroundColor: "#eee",
   },
   button: {
-    width: "190px",
+    width: "100%",
     marginTop: "10px",
     height: "40px",
     borderRadius: "5px",
@@ -141,7 +141,7 @@ const validationSchema = Yup.object({
 
 const SurveyPromptForm = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState("");
+  const [, setFileName] = useState("");
 
   const [downloadInProgress, setDownloadInProgress] = React.useState(false);
 
@@ -500,7 +500,10 @@ const SurveyPromptForm = () => {
                                   sx={classes.radio}
                                   value="no"
                                   checked={field.value === "no"}
-                                  onChange={field.onChange}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    setFile(null);
+                                  }}
                                 />
                                 <Typography>No</Typography>
                               </Box>
@@ -511,7 +514,10 @@ const SurveyPromptForm = () => {
                                   id="yes"
                                   value="yes"
                                   checked={field.value === "yes"}
-                                  onChange={field.onChange}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    setFile(null);
+                                  }}
                                 />
                                 <Typography>Yes</Typography>
                               </Box>
@@ -530,20 +536,26 @@ const SurveyPromptForm = () => {
                           <label htmlFor="fileUpload">
                             Please upload .txt file:
                           </label>
-                          <Box sx={classes.input}>
-                            <input
-                              type="file"
-                              id="fileUpload"
-                              name="fileUpload"
-                              onChange={(e) =>
-                                handleFileUpload(e, setErrors, setFieldValue)
-                              }
-                            />
-                            <Typography>{fileName}</Typography>
+                          <Box>
+                            <label htmlFor="fileUpload">
+                              <input
+                                type="file"
+                                id="fileUpload"
+                                name="fileUpload"
+                                style={{ display: "none" }}
+                                onChange={(e) =>
+                                  handleFileUpload(e, setErrors, setFieldValue)
+                                }
+                              />
+                              <Button
+                                sx={classes.button}
+                                variant="contained"
+                                component="span"
+                              >
+                                Upload File
+                              </Button>
+                            </label>
                           </Box>
-                          {errors.fileUpload && touched.fileUpload && (
-                            <Box sx={classes.error}>{errors.fileUpload}</Box>
-                          )}
                         </Box>
                       )}
                       {values.isFileUpload === "yes" &&
