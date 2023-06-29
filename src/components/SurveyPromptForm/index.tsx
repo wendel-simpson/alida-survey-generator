@@ -5,10 +5,8 @@ import { Config } from "../../types";
 import { Radio, Typography, Button } from "@mui/material";
 import { useState } from "react";
 import * as React from "react";
-import LoadingButton from "@mui/lab/LoadingButton";
-import SurveyGenerator from "../SurveyGenerator";
 
-const host = '10.20.33.86'
+const host = "10.20.33.86";
 
 const initialValues: Config = {
   inputType: "quickStart",
@@ -141,17 +139,18 @@ const validationSchema = Yup.object({
 });
 
 type Props = {
-  setShowSuccess: (isSuccess: boolean) => void 
-}
+  setIsLoading: (isLoading: boolean) => void;
+  setIsSuccess: (isSuccess: boolean) => void;
+};
 
 const SurveyPromptForm = (props: Props) => {
+  const { setIsLoading, setIsSuccess } = props;
+
   const [file, setFile] = useState<File | null>(null);
   const [, setFileName] = useState("");
 
-  const [downloadInProgress, setDownloadInProgress] = React.useState(false);
-
   const handleSubmit = (values: Config, helpers: FormikHelpers<Config>) => {
-    setDownloadInProgress(true);
+    setIsLoading(true);
     const fileName = `${values.companyName}_${values.surveyType}_survey.json`;
 
     fetch(`http://${host}:5000/generate_survey`, {
@@ -172,13 +171,11 @@ const SurveyPromptForm = (props: Props) => {
       })
       .catch((error) => console.error(error))
       .finally(() => {
-        setDownloadInProgress(false);
+        setIsLoading(false);
         helpers.resetForm();
-        props.setShowSuccess(true)
-        // setShowSuccess(true);
-      });      
-    console.log("values to send to the BE", values);
-    return true
+        setIsSuccess(true);
+      });
+    return true;
   };
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -607,18 +604,15 @@ const SurveyPromptForm = (props: Props) => {
                     )}
                   <Box display="flex" justifyContent="flex-end" gap="10px">
                     {values.inputType && (
-                      <LoadingButton
+                      <Button
                         sx={classes.button}
                         type="submit"
                         variant="outlined"
-                        disabled={
-                          Object.keys(errors).length > 0 || downloadInProgress
-                        }
+                        disabled={Object.keys(errors).length > 0}
                         onClick={() => {}}
-                        loading={downloadInProgress}
                       >
                         Generate Survey
-                      </LoadingButton>
+                      </Button>
                     )}
                   </Box>
                 </Box>
