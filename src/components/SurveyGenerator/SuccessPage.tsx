@@ -87,7 +87,7 @@ export const SuccessPage = (props: Props) => {
         >
           🎉
         </Box>
-        <Box>The json file has been downloaded your machine.</Box>
+        <Box>The survey json file has been downloaded to your machine.</Box>
         <Button
           variant="outlined"
           sx={classes.button}
