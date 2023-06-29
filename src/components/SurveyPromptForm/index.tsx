@@ -111,7 +111,7 @@ const validationSchema = Yup.object({
       ? schema.required("Survey Type Required")
       : schema.notRequired()
   ),
-  industry: Yup.string().notRequired(),
+  industry: Yup.string().required("Industry Required"),
   numberOfQuestions: Yup.number().when("inputType", (inputType, schema) =>
     inputType[0] === "quickStart"
       ? schema.required("Number of Questions Required")
