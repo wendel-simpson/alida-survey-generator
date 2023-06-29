@@ -109,7 +109,9 @@ const validationSchema = Yup.object({
     .min(1, "Must be at least 1 character"),
   textInput: Yup.string().when("inputType", (inputType, schema) =>
     inputType[0] === "textInput"
-      ? schema.required("Description Required")
+      ? schema
+          .required("Description Required")
+          .max(6000, "Must be less than or equal to 6000 characters")
       : schema.notRequired()
   ),
   companyName: Yup.string().required("Company Name Required"),
