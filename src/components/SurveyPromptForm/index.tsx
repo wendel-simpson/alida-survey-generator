@@ -5,6 +5,8 @@ import { Config } from "../../types";
 import { Button, CircularProgress, Radio, Typography } from "@mui/material";
 import * as React from 'react';
 
+const host = 'localhost'; // '10.20.33.86'
+
 const initialValues: Config = {
   inputType: "quickStart",
   textInput: "",
@@ -134,7 +136,7 @@ const SurveyPromptForm = () => {
       default:
         // Deal with the quick start variation call to backend
         // Go to the next page with the survey json
-        fetch('http://localhost:5000/generate_survey', {
+        fetch(`http://${host}:5000/generate_survey`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
