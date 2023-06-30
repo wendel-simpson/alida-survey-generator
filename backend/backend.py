@@ -36,7 +36,7 @@ def generate_survey():
 
     if request_data.get("inputType") == 'textInput':
         model_input = f'''
-                {model_input_context_text} Generate a {request_data.get("numberOfQuestions")} question survey 
+                {model_input_context_text} Generate a survey 
                 for company {request_data.get("companyName")} 
                 which is in the {request_data.get("industry")} industry.
                 Referring to the following information: {request_data.get('textInput')}'''
